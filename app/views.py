@@ -11,7 +11,7 @@ import datetime
 def index(page=1):
 	if page<1:
 		page = 1
-	each_page = 10
+	each_page = 20
 	#posts = models.Post.query.order_by(desc('timestamp')).offset((page-1)*each_page).limit(each_page).all()
 	posts = models.Post.query.order_by(desc('timestamp')).paginate(page, per_page=each_page, error_out = False)
 	return flask.render_template(

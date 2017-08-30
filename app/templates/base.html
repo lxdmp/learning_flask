@@ -37,10 +37,16 @@
     <p style="text-align:right">小标题</p> 
 </div>
 
-<div class=“container”>
+<div class="body-container">
 	{% block page_content %}
 	{% endblock %}
 </div>
+{% endblock %}
+
+{# 自定义样式 #}
+{% block styles %}
+{{ super() }}
+<link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet" type="text/css"/>
 {% endblock %}
 
 {# 
@@ -49,7 +55,7 @@
 	- view : 视图函数.
 #}
 {% macro render_pagination(pagination, view) %}
-<nav>
+<div style="text-align:right">
 	<ul class="pagination">
 		{# 前一页 #}
 		<li>
@@ -92,6 +98,6 @@
 			</a>
 		</li>
 	</ul>
-</nav>
+</div>
 {% endmacro %}
 
