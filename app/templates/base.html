@@ -43,3 +43,55 @@
 </div>
 {% endblock %}
 
+{# 
+	分页实现 
+	- pagination : SQLAlchemy分页对象;
+	- view : 视图函数.
+#}
+{% macro render_pagination(pagination, view) %}
+<nav>
+	<ul class="pagination">
+		{# 前一页 #}
+		<li>
+			{% if pagination.has_prev %}
+				<a href="{{url_for(view, page=pagination.prev().page)}}">
+			{% else %}
+				<a>
+			{% endif %}
+				{# <span>&laquo;</span> #}
+				<span>上一页</span>
+			</a>
+		</li>
+
+		{# 中间页 #}
+		{% for page in pagination.iter_pages(1, 2, 3, 1) %}
+			{% if page %}
+				{% if page!=pagination.page %}
+					<li>
+						<a href="{{url_for(view, page=page)}}">
+							{{page}}
+						</a>
+					</li>
+				{% else %}
+					<li><a>{{page}}</a></li>
+				{% endif %}
+			{% else %}
+				<li><a>...</a></li>
+			{% endif %}
+		{% endfor %}
+
+		{# 后一页 #}
+		<li>
+			{% if pagination.has_next %}
+				<a href="{{url_for(view, page=pagination.next().page)}}">
+			{% else %}
+				<a>
+			{% endif %}
+				{# <span>&raquo;</span> #}
+				<span>下一页</span>
+			</a>
+		</li>
+	</ul>
+</nav>
+{% endmacro %}
+

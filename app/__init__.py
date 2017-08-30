@@ -18,4 +18,9 @@ db = flask_sqlalchemy.SQLAlchemy(app) # ORM
 bootstrap = flask_bootstrap.Bootstrap(app) # bootstrap
 moment = flask_moment.Moment(app) # moment
 
+# 自定义模板过滤
+from common import custom_filter_datetime
+app.jinja_env.filters['datetime'] = custom_filter_datetime
+
 from app import views,models
+

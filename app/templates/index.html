@@ -1,15 +1,19 @@
 {% extends "base.html" %}
 
 {% block page_content %}
+{#
 <div class="page_header">
 	<h1>你好,{{user.nickname}}!</h1>
 </div>
+#}
 
 <div class='page_body'>
-	{% for post in posts %}
-		<div><p>{{post.author.nickname}} 说 : {{post.content}}</p></div>
+	{% for post in posts.items %}
+		<div><p>{{post.author.name}} {{post.id}} {{post.body}} {{post.timestamp | datetime}}</p></div>
 	{% endfor %}
+	{{ render_pagination(posts, 'index') }}
 </div>
+
 <div>
 	<p>当前时间 : {{ moment(current_time).format('LLL') }}</p>
 </div>
