@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block page_content %}
+<div class="page_header">
+	<h1>你好,{{user.nickname}}!</h1>
+</div>
+
+<div class='page_body'>
+	{% for post in posts %}
+		<div><p>{{post.author.nickname}} 说 : {{post.content}}</p></div>
+	{% endfor %}
+</div>
+<div>
+	<p>当前时间 : {{ moment(current_time).format('LLL') }}</p>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+{{ moment.include_moment(local_js=url_for('static', filename='3rd/moment_2.10.3.min.js')) }}
+{{ moment.lang('zh_CN') }}
+{% endblock %}
+
