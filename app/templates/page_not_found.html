@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block page_content %}
+<div class="page_header">
+	<h1>无法定位页面</h1>
+</div>
+<div class="page_body">
+	<h1></h1>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="{{ url_for('static', filename='custom.js') }}"></script>
+<script>
+$(document).ready(function() {
+	{# 延时若干时间后跳转主页 #}
+	jumper = delay_jumper(3, 
+		'{{ url_for('index') }}', 
+		function(){
+			s = jumper.left_secs()+'秒后返回主页...';
+			$('.page_body').html(s);
+		}, 
+		function(){
+			$('.page_body').html('正在跳转主页...')
+		});
+	jumper.start();
+});
+</script>
+{% endblock %}
+
