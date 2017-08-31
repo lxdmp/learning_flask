@@ -15,7 +15,7 @@
 <script>
 $(document).ready(function() {
 	{# 延时若干时间后跳转主页 #}
-	jumper = delay_jumper(3, 
+	jumper = new delay_jumper(3, 
 		'{{ url_for('index') }}', 
 		function(){
 			s = jumper.left_secs()+'秒后返回主页...';
