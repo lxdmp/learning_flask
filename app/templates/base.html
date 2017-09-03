@@ -19,11 +19,11 @@
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
 			</button>
-			<a class="navbar-brand" href="/index">Logo</a>
+			<a class="navbar-brand" href="/">Logo</a>
 		</div>
 		<div class="navbar-collapse collapse">
 			<ul class="nav navbar-nav">
-				<li><a href="/index">首页</a></li>
+				<li><a href="/">首页</a></li>
 			</ul>
 		</div>
 	</div>
@@ -32,7 +32,7 @@
 
 {% block content %}
 <div class="jumbotron">
-    <h1 style="text-align:center"><a href="{{url_for('index')}}">大标题</a></h1>
+    <h1 style="text-align:center"><a href="/">大标题</a></h1>
 	<br/>
     <p style="text-align:right">小标题</p> 
 </div>
@@ -64,8 +64,7 @@
 			{% else %}
 				<a>
 			{% endif %}
-				{# <span>&laquo;</span> #}
-				<span>上一页</span>
+				<span>&laquo;上一页</span>
 			</a>
 		</li>
 
@@ -93,8 +92,7 @@
 			{% else %}
 				<a>
 			{% endif %}
-				{# <span>&raquo;</span> #}
-				<span>下一页</span>
+				<span>下一页&raquo;</span>
 			</a>
 		</li>
 	</ul>

@@ -13,17 +13,21 @@
 {{ super() }}
 <script src="{{ url_for('static', filename='custom.js') }}"></script>
 <script>
+var target = '{{target_url}}';
+var delay = {{delay_sec}};
 $(document).ready(function() {
 	{# 延时若干时间后跳转主页 #}
-	jumper = new delay_jumper(3, 
-		'{{ url_for('index') }}', 
+	jumper = new delay_jumper(delay, 
+		target, 
 		function(){
-			s = jumper.left_secs()+'秒后返回主页...';
+			s = jumper.left_secs()+'秒后返回'+'<a href=\''+target+'\'>主页</a>'+'...';
 			$('.page_body').html(s);
 		}, 
 		function(){
-			$('.page_body').html('正在跳转主页...')
-		});
+			s = '正在跳转主页...';
+			$('.page_body').html(s);
+		}
+	);
 	jumper.start();
 });
 </script>
