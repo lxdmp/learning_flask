@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block page_content %}
+<div class="page_header">
+	<h1>你好!</h1>
+</div>
+
+<div>
+	<p>当前时间 : {{ moment(current_time).format('LLL') }}</p>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+{{ moment.include_moment(local_js=url_for('static', filename='vendor/moment_2.10.3.min.js')) }}
+{{ moment.lang('zh_CN') }}
+{% endblock %}
+
