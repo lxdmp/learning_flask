@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block page_content %}
+
+<div>
+{{ wtf.quick_form(form) }}
+</div>
+
+<div>
+	<p>当前时间 : {{ moment(current_time).format('LLL') }}</p>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+{{ moment.include_moment(local_js=url_for('static', filename='vendor/moment_2.10.3.min.js')) }}
+{{ moment.lang('zh_CN') }}
+
+<script>
+$(document).ready(function(){
+	var inputs = $('input')
+	for(var i=0; i<inputs.length; ++i)
+	{
+		inputs[i].oninvalid = function(e){
+			e.target.setCustomValidity('该字段不能为空')
+		}
+		/*
+		inputs[i].onmouseover = function(e){
+			e.target.setCustomValidity('在该字段中填入信息')
+		}
+		*/
+	}
+});
+</script>
+
+{% endblock %}
+
