@@ -11,7 +11,7 @@
 	{% for post in posts.items %}
 		<div><p>{{post.author.name}} {{post.id}} {{post.body}} {{post.timestamp | datetime}}</p></div>
 	{% endfor %}
-	{{ render_pagination(posts, 'index') }}
+	{{ render_pagination(posts, 'blog.index') }}
 </div>
 
 <div>
@@ -21,7 +21,7 @@
 
 {% block scripts %}
 {{ super() }}
-{{ moment.include_moment(local_js=url_for('static', filename='3rd/moment_2.10.3.min.js')) }}
+{{ moment.include_moment(local_js=url_for('static', filename='vendor/moment_2.10.3.min.js')) }}
 {{ moment.lang('zh_CN') }}
 {% endblock %}
 
