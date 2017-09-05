@@ -4,7 +4,7 @@
 {% block page_content %}
 
 <div>
-{{ wtf.quick_form(form) }}
+{{ wtf.quick_form(form, novalidate=True) }}
 </div>
 
 <div>
@@ -18,18 +18,48 @@
 {{ moment.lang('zh_CN') }}
 
 <script>
+function check_form(e)
+{
+	var fields = [
+		['#user', '填写用户字段'], 
+		['#pw', '填写密码字段']
+	];
+	for(var i=0; i<fields.length; ++i)
+	{
+		var obj = $(fields[i][0]);
+		if(obj.val()=='')
+		{
+			alert(fields[i][1]);
+			obj.focus();
+			e.preventDefault();
+			return;
+		}
+	}
+}
+
 $(document).ready(function(){
+	/*
 	var inputs = $('input')
 	for(var i=0; i<inputs.length; ++i)
 	{
-		inputs[i].oninvalid = function(e){
-			e.target.setCustomValidity('该字段不能为空')
+		if( inputs[i].type=='text' || 
+			inputs[i].type=='password' )
+		{
+			inputs[i].oninvalid = function(e){
+				console.log('here')
+				console.log(e.target.value)
+				console.log(e.target)
+				e.target.setCustomValidity('该字段不能为空')
+			}
+			//inputs[i].onmouseover = function(e){
+			//	e.target.setCustomValidity('在该字段中填入信息')
+			//}
 		}
-		/*
-		inputs[i].onmouseover = function(e){
-			e.target.setCustomValidity('在该字段中填入信息')
-		}
-		*/
+	}
+	*/
+	var forms = $('form');
+	for(var i=0; i<forms.length; ++i){
+		forms[i].onsubmit = check_form;
 	}
 });
 </script>
