@@ -36,17 +36,18 @@ def create_app(config_name):
 	from .admin import admin as admin_bp
 	app.register_blueprint(admin_bp)
 
+	from .common import url_for_bp
 	# 首页重定向
 	@app.route('/')
 	def index():
-		return flask.redirect(flask.url_for('blog.index'))
+		return flask.redirect(url_for_bp(blog_bp, 'index'))
 
 	# 错误重定向
 	@app.errorhandler(404)
 	def page_not_found(error):
 		return flask.render_template(
 			"page_not_found.html", 
-			target_url=flask.url_for('blog.index'), 
+			target_url=url_for_bp(blog_bp, 'index'), 
 			delay_sec=4), 404
 	
 	@app.errorhandler(500)

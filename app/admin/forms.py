@@ -11,5 +11,5 @@ class LoginForm(FlaskForm):
 	pw = PasswordField('密码', validators=[
 		Required(message='该字段不能为空')
 	])
-	submit = SubmitField('提交')
+	submit = SubmitField('登录')
 

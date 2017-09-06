@@ -29,3 +29,10 @@ def custom_filter_datetime(s):
 	else:
 		 return s
 	
+def url_for_bp(bp, url):
+	'''
+	格式化某个蓝图中的视图url
+	'''
+	from flask import url_for
+	return url_for('.'.join((bp.name, url)))
+

@@ -16,3 +16,9 @@
 	border-width : 1px;
 }
 
+.login_form{
+	margin : 0 auto;
+	width : 50%;
+	text-align : center;
+}
+
