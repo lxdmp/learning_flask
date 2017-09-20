@@ -3,6 +3,8 @@ import flask
 import flask_sqlalchemy
 import flask_bootstrap
 import flask_moment
+import flask_socketio
+import flask_apscheduler
 from config import config
 
 '''
@@ -15,6 +17,22 @@ sys.setdefaultencoding("utf-8")
 db = flask_sqlalchemy.SQLAlchemy() # ORM
 bootstrap = flask_bootstrap.Bootstrap() # bootstrap
 moment = flask_moment.Moment() # moment
+socketio = flask_socketio.SocketIO() # socket io
+scheduler = flask_apscheduler.APScheduler() # scheduelr
+
+def sin_data_gen():
+	pass
+
+class AppWrapper(object):
+
+	def __init__(self, app):
+		self._app = app
+	
+	def run(self):
+		assert(self._app!=None)
+		if not scheduler.running:
+			scheduler.start()
+		socketio.run(self._app)
 
 def create_app(config_name):
 	app = flask.Flask(__name__)
@@ -24,6 +42,8 @@ def create_app(config_name):
 	db.init_app(app)
 	bootstrap.init_app(app)
 	moment.init_app(app)
+	socketio.init_app(app)
+	scheduler.init_app(app)
 
 	# 自定义模板过滤
 	from common import custom_filter_datetime
@@ -66,6 +86,5 @@ def create_app(config_name):
 				new_path = list(set(bp.jinja_loader.searchpath).union(set(app.jinja_loader.searchpath)))
 				app.jinja_loader.searchpath = new_path
 	'''
-	
-	return app
+	return AppWrapper(app)
 
