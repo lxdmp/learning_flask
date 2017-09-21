@@ -18,7 +18,8 @@ class Config(object):
 
 # 开发环境配置
 class DevConfig(Config):
-	DEBUG =True
+	DEBUG = True
+	use_reloader = False
 	
 	# db配置(使用sqlite)
 	SQLALCHEMY_DATABASE_URI = 'sqlite:///'+os.path.join(_basedir, 'app.db')
@@ -27,17 +28,6 @@ class DevConfig(Config):
 	
 	# flask-bootstrap配置
 	BOOTSTRAP_SERVE_LOCAL = True # 使用本地的css/js文件
-
-	# flask-apscheduler配置
-	JOB = [
-		{
-			'id' : 'sin_data',
-			'func' : 'sin_data_gen',
-			'args' : None,
-			'trigger' : 'interval', 
-			'seconds' : '1'
-		}
-	]
 
 config = {
 	'dev' : DevConfig, 

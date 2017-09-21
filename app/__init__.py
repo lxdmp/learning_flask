@@ -1,4 +1,6 @@
 # coding=utf-8
+import os
+import sys
 import flask
 import flask_sqlalchemy
 import flask_bootstrap
@@ -10,7 +12,6 @@ from config import config
 '''
 脚本/模版统一utf-8编码.
 '''
-import sys
 reload(sys)
 sys.setdefaultencoding("utf-8")
 
@@ -20,9 +21,6 @@ moment = flask_moment.Moment() # moment
 socketio = flask_socketio.SocketIO() # socket io
 scheduler = flask_apscheduler.APScheduler() # scheduelr
 
-def sin_data_gen():
-	pass
-
 class AppWrapper(object):
 
 	def __init__(self, app):
@@ -30,8 +28,9 @@ class AppWrapper(object):
 	
 	def run(self):
 		assert(self._app!=None)
-		if not scheduler.running:
-			scheduler.start()
+		if os.environ.get('WERKZEUG_RUN_MAIN'):
+			if not scheduler.running:
+				scheduler.start()
 		socketio.run(self._app)
 
 def create_app(config_name):
@@ -56,6 +55,9 @@ def create_app(config_name):
 	from .admin import admin as admin_bp
 	app.register_blueprint(admin_bp)
 
+	from .rtcurve import rtcurve as rtcurve_bp
+	app.register_blueprint(rtcurve_bp)
+
 	from .common import url_for_bp
 	# 首页重定向
 	@app.route('/')
@@ -74,6 +76,12 @@ def create_app(config_name):
 	def internal_error(error):
 		return flask.render_template("internal_error.html"), 500
 	
+
+	# 自定义初始化
+	@app.before_first_request
+	def custom_init():
+		pass
+	
 	# 请求预处理(若访问蓝图,将蓝图的路径设为优先搜索路径)
 	'''
 	@app.before_request
@@ -86,5 +94,6 @@ def create_app(config_name):
 				new_path = list(set(bp.jinja_loader.searchpath).union(set(app.jinja_loader.searchpath)))
 				app.jinja_loader.searchpath = new_path
 	'''
-	return AppWrapper(app)
+	app_wrapper = AppWrapper(app)
+	return app_wrapper
 

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block page_content %}
+
+<p>测试</p>
+
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="{{ url_for('static', filename='vendor/socket.io.min.js') }}"></script>
+<script>
+$(document).ready(function() {
+	var socket = io.connect("127.0.0.1:5000");
+	socket.on("connected", function(){
+		console.log("connected");
+	});
+	socket.on('msg', function (data) {
+		console.log(data);
+	});
+});
+</script>
+{% endblock %}
+
