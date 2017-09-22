@@ -13,103 +13,87 @@
 <script>
 $(document).ready(function() {
 
-	var svg_width = 600;
-	var svg_height = 480;
-	var margin = {
-		"top" : 20, 
-		"bottom" : 20, 
-		"left" : 50, 
-		"right" : 20
-	};
-	var buf_size = 30;
-	var buf = new Array(buf_size);
-	for(var i=0; i<buf.length; ++i)
-		buf[i] = 0;
-	var each_width = (svg_width-margin.left-margin.right)/(buf.length-1)
+	function init_chart()
+	{
+		var svg_width = 900;
+		var svg_height = 480;
+		var margin = {
+			"top" : 20, 
+			"bottom" : 20, 
+			"left" : 50, 
+			"right" : 20
+		};
+		var buf_size = Math.round((svg_width-margin.left-margin.right)/10);
+		var buf = new Array(buf_size);
+		for(var i=0; i<buf.length; ++i)
+			buf[i] = 0;
 
-	var load = function(){
 		var svg = d3.select("body").append("svg")
 			.attr("width", svg_width)
 			.attr("height", svg_height);
-		var x_axe = svg.append("g").attr("class", "axis_x");
-		var y_axe = svg.append("g").attr("class", "axis_y");
 
-		var x_scale = d3.scale.linear()
-			.domain([0, buf.length-1])
-			.range([0, svg_width-margin.left-margin.right]);
-		var x_axis = d3.svg.axis()
-			.scale(x_scale)
-			.orient("bottom")
-			.ticks(10);
-		svg.select(".axis_x")
+		var x_scale, x_axis, y_scale, y_axis;
+
+		function set_chart_parameters()
+		{
+			x_scale = d3.scale.linear()
+				.domain([0, buf.length-1])
+				.range([0, svg_width-margin.left-margin.right]);
+			x_axis = d3.svg.axis()
+				.scale(x_scale)
+				.orient("bottom")
+				.ticks(10);
+
+			y_scale = d3.scale.linear()
+				.domain([d3.min(buf), d3.max(buf)])
+				.range([svg_height-margin.bottom-margin.top, 0]);
+			y_axis =d3.svg.axis()
+				.scale(y_scale)
+				.orient("left")
+				.ticks(20);
+		}
+
+		set_chart_parameters();
+		svg.append("g").attr("class", "x axis")
 			.attr("transform","translate("+margin.left+","+(svg_height-margin.bottom)+")")
 			.call(x_axis);
-
-		var y_scale = d3.scale.linear()
-			.domain([d3.min(buf), d3.max(buf)])
-			.range([svg_height-margin.bottom-margin.top, 0]);
-		var y_axis =d3.svg.axis()
-			.scale(y_scale)
-			.orient("left")
-			.ticks(20);
-		svg.select(".axis_y")
-			.attr("transform", "translate("+margin.left+","+margin.top+")")
-			.call(y_axis);
-
-		/*
-		svg.selectAll("path")
-			.data(buf)
-			.enter().append("path");
-		*/
-	};
-
-	var update = function(new_data)
-	{
-		// 更新数据
-		for(var i=0; i<buf.length-1; ++i)
-			buf[i] = buf[i+1];
-		buf[buf.length-1] = new_data;
-
-		var svg = d3.select("body").select("svg");
-
-		var x_scale = d3.scale.linear()
-			.domain([0, buf.length-1])
-			.range([0, svg_width-margin.left-margin.right]);
-		var x_axis = d3.svg.axis()
-			.scale(x_scale)
-			.orient("bottom")
-			.ticks(10);
-		svg.selectAll(".axis_x")
-			.attr("transform","translate("+margin.left+","+(svg_height-margin.bottom)+")")
-			.call(x_axis);
-
-		var y_scale = d3.scale.linear()
-			.domain([d3.min(buf), d3.max(buf)])
-			.range([svg_height-margin.bottom-margin.top, 0]);
-		var y_axis =d3.svg.axis()
-			.scale(y_scale)
-			.orient("left")
-			.ticks(20);
-		svg.selectAll(".axis_y")
+		svg.append("g").attr("class", "y axis")
 			.attr("transform", "translate("+margin.left+","+margin.top+")")
 			.call(y_axis);
 
 		var line = d3.svg.line()
-		.x(function(d, i){
-			return margin.left+x_scale(i);
-		})
-		.y(function(d){
-			return margin.top+y_scale(d);
-		});
-		
-		svg.selectAll("path")
-			.data(buf)
-			.attr("d", line(buf))
-			.style("stroke-width", 1)
-			.style("stroke","#000")
-			.style("fill", "none");
-	};
+			.x(function(d, i){
+				return margin.left+x_scale(i);
+			})
+			.y(function(d, i){
+				return margin.top+y_scale(d);
+			})
+			.interpolate('basis');
 
+		svg.append("path")
+			.attr("d", line(buf))
+			.attr("class", "curve")
+			.style("stroke-width", 2)
+			.style("stroke", "#000")
+			.style("fill", "none");
+
+		function redraw_chart(new_data) 
+		{
+			for(var i=0; i<buf.length-1; ++i)
+				buf[i] = buf[i+1];
+			buf[buf.length-1] = new_data;
+
+			set_chart_parameters();
+			svg.selectAll("g.y.axis").call(y_axis);
+			svg.selectAll("g.x.axis").call(x_axis);
+			svg.selectAll(".curve")
+				.attr("d", line(buf));
+		}
+
+		return {"redraw" : redraw_chart};
+	}
+
+	var handle = init_chart();
 	var socket = io.connect("127.0.0.1:5000");
 	socket.on("connect", function(){
 		console.log("connected");
@@ -118,11 +102,10 @@ $(document).ready(function() {
 		console.log("disconnected");
 	});
 	socket.on('msg', function (data) {
-		//console.log(data["data"]);
-		update(data["data"]);
+		handle.redraw(data["data"]);
 	});
 
-	load();
+
 });
 </script>
 {% endblock %}

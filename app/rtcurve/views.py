@@ -14,11 +14,19 @@ def test_disconnect():
 	pass
 
 custom_data_lock = threading.Lock()
+phase = 0.0
 def sin_data_gen():
-	import random
+	import math
+	global phase
+	phase_step = 10*math.pi/180;
+	
 	with custom_data_lock:
-		val = random.random()*16+4
-		socketio.emit('msg', {'data': val})
+		phase += phase_step
+		if phase>=math.pi*2:
+			phase -= math.pi*2
+		val = math.sin(phase)*10;
+	
+	socketio.emit('msg', {'data': val})
 
 rtcurve._before_request_lock = threading.Lock()
 rtcurve._first_req_got = False
