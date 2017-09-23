@@ -17,6 +17,7 @@ custom_data_lock = threading.Lock()
 phase = 0.0
 def sin_data_gen():
 	import math
+	import datetime
 	global phase
 	phase_step = 10*math.pi/180;
 	
@@ -26,7 +27,10 @@ def sin_data_gen():
 			phase -= math.pi*2
 		val = math.sin(phase)*10;
 	
-	socketio.emit('msg', {'data': val})
+	socketio.emit('msg', {
+		'stamp' : datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 
+		'data' : val
+	})
 
 rtcurve._before_request_lock = threading.Lock()
 rtcurve._first_req_got = False
