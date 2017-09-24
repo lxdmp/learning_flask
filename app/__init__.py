@@ -6,7 +6,6 @@ import flask_sqlalchemy
 import flask_bootstrap
 import flask_moment
 import flask_socketio
-import flask_apscheduler
 from config import config
 
 '''
@@ -19,7 +18,6 @@ db = flask_sqlalchemy.SQLAlchemy() # ORM
 bootstrap = flask_bootstrap.Bootstrap() # bootstrap
 moment = flask_moment.Moment() # moment
 socketio = flask_socketio.SocketIO() # socket io
-scheduler = flask_apscheduler.APScheduler() # scheduelr
 
 class AppWrapper(object):
 
@@ -28,21 +26,17 @@ class AppWrapper(object):
 	
 	def run(self):
 		assert(self._app!=None)
-		if os.environ.get('WERKZEUG_RUN_MAIN'):
-			if not scheduler.running:
-				scheduler.start()
-		socketio.run(self._app)
+		socketio.run(self._app, host='0.0.0.0')
 
 def create_app(config_name):
 	app = flask.Flask(__name__)
 	app.config.from_object(config[config_name])
 	config[config_name].init_app(app)
-
+	
 	db.init_app(app)
 	bootstrap.init_app(app)
 	moment.init_app(app)
 	socketio.init_app(app)
-	scheduler.init_app(app)
 
 	# 自定义模板过滤
 	from common import custom_filter_datetime

@@ -156,6 +156,7 @@ $(document).ready(function() {
 		console.log("disconnected");
 	});
 	socket.on('msg', function (data) {
+		//console.log(data);
 		handle.redraw(data);
 	});
 

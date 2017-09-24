@@ -21,16 +21,18 @@ def sin_data_gen():
 	global phase
 	phase_step = 10*math.pi/180;
 	
-	with custom_data_lock:
-		phase += phase_step
-		if phase>=math.pi*2:
-			phase -= math.pi*2
-		val = math.sin(phase)*10;
+	while True:
+		with custom_data_lock:
+			phase += phase_step
+			if phase>=math.pi*2:
+				phase -= math.pi*2
+			val = math.sin(phase)*10;
 	
-	socketio.emit('msg', {
-		'stamp' : datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 
-		'data' : val
-	})
+		socketio.emit('msg', {
+			'stamp' : datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 
+			'data' : val
+		})
+		socketio.sleep(1)
 
 rtcurve._before_request_lock = threading.Lock()
 rtcurve._first_req_got = False
@@ -44,14 +46,7 @@ def init_rtcurve_bp():
 		rtcurve._first_req_got = True
 
 		# 蓝图初次执行需做的初始化
-		from .. import scheduler
-		scheduler.add_job(
-			id='sin_data',
-			func=sin_data_gen, 
-			args=None, 
-			trigger='interval', 
-			seconds=1
-		)
+		socketio.start_background_task(target=sin_data_gen)
 
 @rtcurve.route('/')
 def index():
