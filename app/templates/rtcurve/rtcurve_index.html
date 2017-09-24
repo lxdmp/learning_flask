@@ -86,6 +86,35 @@ $(document).ready(function() {
 			.style("stroke", "#000")
 			.style("fill", "none");
 
+		var square_width = 5;
+		var point_x = function(d, i){
+			return margin.left+x_scale(i)-(square_width-1)/2;
+		};
+		var point_y = function(d, i){
+			return margin.top+y_scale(d)-(square_width-1)/2;
+		};
+		var point_visible = function(d, i){
+			if(ind[i]==null)
+				return "hidden";
+			return "visible";
+		};
+		svg.selectAll("rect")
+			.data(buf)
+			.enter().append("rect")
+			.attr("x", function(d,i){
+				return point_x(d, i);
+			})
+			.attr("y", function(d, i){
+				return point_y(d, i);
+			})
+			.attr("width", square_width)
+			.attr("height", square_width)
+			.attr("class", "point")
+			.style("fill", "#F00")
+			.style("visibility", function(d, i){
+				return point_visible(d, i);
+			})
+
 		function redraw_chart(new_data) 
 		{
 			for(var i=0; i<buf.length-1; ++i)
@@ -101,6 +130,18 @@ $(document).ready(function() {
 			svg.selectAll("g.x.axis").call(x_axis);
 			svg.selectAll(".curve")
 				.attr("d", line(buf));
+			
+			svg.selectAll(".point")
+				.data(buf)
+				.attr("x", function(d,i){
+					return point_x(d, i);
+				})
+				.attr("y", function(d, i){
+					return point_y(d, i);
+				})
+				.style("visibility", function(d, i){
+					return point_visible(d, i);
+				});
 		}
 
 		return {"redraw" : redraw_chart};
