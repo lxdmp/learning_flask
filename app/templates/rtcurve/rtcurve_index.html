@@ -73,6 +73,21 @@ $(document).ready(function() {
 			.attr("transform", "translate("+margin.left+","+margin.top+")")
 			.call(y_axis);
 
+		var valid_index = function(buffer){
+			for(var i=0; i<buffer.length; ++i)
+				if(buffer[i].stamp!=null)
+					return i;
+			return null;
+		};
+
+		var valid_buffer = function(buffer){
+			var idx = valid_index(buffer);
+			if(idx==null)
+				return [];
+			else
+				return buffer.slice(idx, buffer.length);
+		};
+
 		var line = d3.svg.line()
 			.x(function(d, i){
 				return margin.left+x_scale(i);
