@@ -233,7 +233,8 @@ $(document).ready(function() {
 	}
 
 	var handle = init_chart();
-	var socket = io.connect("127.0.0.1:5000");
+	var ws_target = window.location.protocol+"//"+window.location.host;
+	var socket = io.connect(ws_target);
 	socket.on("connect", function(){
 		console.log("connected");
 	});
