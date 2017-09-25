@@ -2,7 +2,7 @@
 
 {% block page_content %}
 
-<p>测试</p>
+<input type="button" id="auto_ref"/>
 
 {% endblock %}
 
@@ -12,9 +12,11 @@
 <script src="{{ url_for('static', filename='vendor/d3.v3.min.js') }}"></script>
 <script>
 $(document).ready(function() {
-
+	
+	// 初始化图表
 	function init_chart()
 	{
+		var auto_ref = true;
 		var svg_width = 900;
 		var svg_height = 480;
 		var margin = {
@@ -107,6 +109,7 @@ $(document).ready(function() {
 			});
 			//.interpolate('basis');
 
+		// - 添加曲线
 		svg.append("path")
 			.attr("d", line(valid_buffer(buf)))
 			.attr("class", "curve")
@@ -114,40 +117,49 @@ $(document).ready(function() {
 			.style("stroke", "#000")
 			.style("fill", "none");
 
-		var square_width = 5;
+		// - 描点
+		var radius_default = 3, radius_bold = 5;
 		var point_x = function(d, i){
-			return margin.left+x_scale(i)-(square_width-1)/2;
+			return margin.left+x_scale(i);
 		};
 		var point_y = function(d, i){
-			return margin.top+y_scale(d.data)-(square_width-1)/2;
+			return margin.top+y_scale(d.data);
 		};
 		var point_visible = function(d, i){
 			if(d.stamp==null)
 				return "hidden";
 			return "visible";
 		};
-		svg.selectAll("rect")
+		svg.selectAll("circle")
 			.data(buf)
-			.enter().append("rect")
-			.attr("x", function(d,i){
+			.enter().append("circle")
+			.attr("cx", function(d,i){
 				return point_x(d, i);
 			})
-			.attr("y", function(d, i){
+			.attr("cy", function(d, i){
 				return point_y(d, i);
 			})
-			.attr("width", square_width)
-			.attr("height", square_width)
+			.attr("r", radius_default)
 			.attr("class", "point")
 			.style("fill", "#F00")
 			.style("visibility", function(d, i){
 				return point_visible(d, i);
 			})
+			.on("mouseover", function(){
+				d3.select(this).transition().duration(100).attr("r", radius_bold);
+			})
+			.on("mouseout", function(){
+				d3.select(this).transition().duration(100).attr("r", radius_default);
+			});
 
 		function redraw_chart(new_data) 
 		{
 			for(var i=0; i<buf.length-1; ++i)
 				buf[i] = buf[i+1];
 			buf[buf.length-1] = new_data;
+
+			if(!auto_ref)
+				return;
 
 			set_chart_parameters();
 			svg.selectAll("g.y.axis").call(y_axis);
@@ -157,10 +169,10 @@ $(document).ready(function() {
 			
 			svg.selectAll(".point")
 				.data(buf)
-				.attr("x", function(d,i){
+				.attr("cx", function(d,i){
 					return point_x(d, i);
 				})
-				.attr("y", function(d, i){
+				.attr("cy", function(d, i){
 					return point_y(d, i);
 				})
 				.style("visibility", function(d, i){
@@ -168,7 +180,18 @@ $(document).ready(function() {
 				});
 		}
 
-		return {"redraw" : redraw_chart};
+		return {
+			"redraw" : redraw_chart, // 更新曲线
+			"ref_flag" : function(){ // 前台是否刷新
+				return auto_ref;
+			},
+			"toggle_ref" : function(){ // 前台刷新切换
+				if(auto_ref)
+					auto_ref = false;
+				else
+					auto_ref = true;
+			}
+		};
 	}
 
 	var handle = init_chart();
@@ -184,7 +207,15 @@ $(document).ready(function() {
 		handle.redraw(data);
 	});
 
-
+	d3.select("#auto_ref")
+		.attr("value", "暂停")
+		.on("click", function(){
+			handle.toggle_ref();
+			if(handle.ref_flag())
+				d3.select(this).attr("value", "暂停");
+			else
+				d3.select(this).attr("value", "恢复");
+		});
 });
 </script>
 {% endblock %}
