@@ -62,7 +62,7 @@ $(document).ready(function() {
 			y_axis =d3.svg.axis()
 				.scale(y_scale)
 				.orient("left")
-				.ticks(20);
+				.ticks(10);
 		}
 
 		set_chart_parameters();
@@ -72,6 +72,16 @@ $(document).ready(function() {
 		svg.append("g").attr("class", "y axis")
 			.attr("transform", "translate("+margin.left+","+margin.top+")")
 			.call(y_axis);
+
+		/*
+		// for further debug
+		var valid_index = function(buffer){
+			return 0;
+		};
+		var valid_buffer = function(buffer){
+			return buffer;
+		};
+		*/
 
 		var valid_index = function(buffer){
 			for(var i=0; i<buffer.length; ++i)
@@ -90,15 +100,15 @@ $(document).ready(function() {
 
 		var line = d3.svg.line()
 			.x(function(d, i){
-				return margin.left+x_scale(i);
+				return margin.left+x_scale(valid_index(buf)+i);
 			})
 			.y(function(d, i){
 				return margin.top+y_scale(d.data);
-			})
-			.interpolate('basis');
+			});
+			//.interpolate('basis');
 
 		svg.append("path")
-			.attr("d", line(buf))
+			.attr("d", line(valid_buffer(buf)))
 			.attr("class", "curve")
 			.style("stroke-width", 2)
 			.style("stroke", "#000")
@@ -143,7 +153,7 @@ $(document).ready(function() {
 			svg.selectAll("g.y.axis").call(y_axis);
 			svg.selectAll("g.x.axis").call(x_axis);
 			svg.selectAll(".curve")
-				.attr("d", line(buf));
+				.attr("d", line(valid_buffer(buf)));
 			
 			svg.selectAll(".point")
 				.data(buf)
