@@ -1,9 +1,7 @@
 {% extends "base.html" %}
 
 {% block page_content %}
-
 <input type="button" id="auto_ref"/>
-
 {% endblock %}
 
 {% block scripts %}
@@ -217,6 +215,53 @@ $(document).ready(function() {
 					return point_visible(d, i);
 				});
 		}
+
+
+		function create_mouse_watcher()
+		{
+			var mouse_pressed = false;
+			var mouse_last_down;
+
+			function on_down()
+			{
+				mouse_pressed = true;
+				mouse_last_down = d3.mouse(this);
+			}
+
+			function on_up()
+			{
+				mouse_pressed = false;
+				var p = d3.mouse(this);
+				var x_dis = p[0]-mouse_last_down[0];
+				x_dis += margin.left;
+				var x_ind = x_scale.invert(x_dis-margin.left);
+				x_ind = Math.round(x_ind);
+				if(x_ind>0)
+					console.log("->, earlier "+x_ind);
+				else if(x_ind<0)
+					console.log("<-, later "+(-x_ind));
+			}
+			
+			function on_move()
+			{
+				if(!mouse_pressed)
+					return;
+				var m = d3.mouse(this);
+				var x_ind = x_scale.invert(m[0]-margin.left);
+				x_ind = Math.round(x_ind);
+				//console.log(x_ind);
+			}
+
+			return {
+				"down" : on_down, 
+				"up" : on_up, 
+				"move" : on_move
+			};
+		}
+		var mouse_watcher = create_mouse_watcher();
+		svg.on("mousedown.stock", mouse_watcher.down)
+			.on("mouseup.stock", mouse_watcher.up)
+			.on("mousemove.stock", mouse_watcher.move);
 
 		return {
 			"redraw" : redraw_chart, // 更新曲线
