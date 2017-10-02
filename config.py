@@ -12,6 +12,12 @@ class Config(object):
 	CSRF_ENABLED = True # 使能"跨站点请求伪造"保护
 	SECRET_KEY = os.environ.get('SECRET_KEY') or 'lxdmp' # 设置加密密匙
 
+	# Stock DB 配置
+	STOCK_DB_HOST = '127.0.0.1'
+	STOCK_DB_NAME = 'StockData'
+	STOCK_DB_USER = os.environ.get('STOCK_DB_USER')
+	STOCK_DB_PW = os.environ.get('STOCK_DB_PW')
+
 	@staticmethod
 	def init_app(app):
 		pass

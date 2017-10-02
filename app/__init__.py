@@ -2,6 +2,7 @@
 import os
 import sys
 import flask
+from werkzeug.routing import BaseConverter
 import flask_sqlalchemy
 import flask_bootstrap
 import flask_moment
@@ -19,6 +20,11 @@ bootstrap = flask_bootstrap.Bootstrap() # bootstrap
 moment = flask_moment.Moment() # moment
 socketio = flask_socketio.SocketIO() # socket io
 
+class RegexConverter(BaseConverter):
+	def __init__(self, map, *args):
+		self.map = map
+		self.regex = args[0]
+
 class AppWrapper(object):
 
 	def __init__(self, app):
@@ -26,7 +32,7 @@ class AppWrapper(object):
 	
 	def run(self):
 		assert(self._app!=None)
-		socketio.run(self._app, host='0.0.0.0')
+		socketio.run(self._app, host='0.0.0.0') # 使能socketio
 
 def create_app(config_name):
 	app = flask.Flask(__name__)
@@ -38,6 +44,9 @@ def create_app(config_name):
 	moment.init_app(app)
 	socketio.init_app(app)
 
+	# 自定义rote参数匹配
+	app.url_map.converters['regex'] = RegexConverter  # route参数使能正则匹配
+	
 	# 自定义模板过滤
 	from common import custom_filter_datetime
 	app.jinja_env.filters['datetime'] = custom_filter_datetime
@@ -51,6 +60,12 @@ def create_app(config_name):
 
 	from .rtcurve import rtcurve as rtcurve_bp
 	app.register_blueprint(rtcurve_bp)
+
+	from .stock_api import stock_api as stock_api_bp
+	app.register_blueprint(stock_api_bp)
+
+	from .stock import stock as stock_bp
+	app.register_blueprint(stock_bp)
 
 	from .common import url_for_bp
 	# 首页重定向

@@ -20,3 +20,4 @@ flask/bin/pip install gevent # socketio需要
 flask/bin/pip install gevent-websocket # socketio需要
 flask/bin/pip install futures # in 2.7, no module futures, apscheduelr需要
 flask/bin/pip install funcsigs # apscheduler需要
+flask/bin/pip install mysql-connector==2.1.4
