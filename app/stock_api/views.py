@@ -1,6 +1,7 @@
 # coding=utf-8
 import flask
 import datetime
+import re
 from . import stock_api
 import mysql.connector
 
@@ -41,15 +42,22 @@ def format_day_row(row):
 	row[6] = row[6]/1.0
 	return row
 
-@stock_api.route('/day/<regex("\d{6}"):id>/<regex("\d{8}"):start_date>')
-@stock_api.route('/day/<regex("\d{6}"):id>/<regex("\d{8}"):start_date>-<regex("\d{8}"):end_date>')
-def day(id, start_date, end_date=None):
-	if not hasattr(flask.g, 'stock_db'):
-		return format_error_msg(500, 'Can not connec to db server')
+# 查询一段范围内的行情
+def query_range_day_info(id):
 	conn = flask.g.stock_db
+	start_date = flask.request.args.get('start')
+	end_date = flask.request.args.get('end')
+	date_pattern = '[\d]{8}'
 
-	if end_date==None:
+	if not start_date:
+		return None
+	if not re.match(date_pattern, start_date):
+		return None
+
+	if not end_date:
 		end_date = start_date
+	if not re.match(date_pattern, end_date):
+		return None
 
 	id = int(id)
 	start_year = int(start_date[:4])
@@ -62,7 +70,7 @@ def day(id, start_date, end_date=None):
 	start_date = datetime.datetime(start_year, start_mon, start_day, 0, 0, 0)
 	end_date = datetime.datetime(end_year, end_mon, end_day, 0, 0, 0)
 	if start_date>end_date:
-		return format_error_msg(404, 'Request date range error')
+		return None
 	
 	result = []
 	cursor = conn.cursor()
@@ -74,11 +82,87 @@ def day(id, start_date, end_date=None):
 	cursor.close()
 
 	return flask.jsonify(result),200
-	'''
-	return flask.jsonify({
-		'id' : id, 
-		'start' :'%04d-%02d-%02d'%(start_year, start_mon, start_day), 
-		'end' : '%04d-%02d-%02d'%(end_year, end_mon, end_day) 
-	}),200
-	'''
+
+# 查询指定时间点前的行情
+def query_prev_day_info(id):
+	conn = flask.g.stock_db
+	is_prev = flask.request.args.get('prev')
+	count = flask.request.args.get('count')
+	date = flask.request.args.get('date')
+	date_pattern = '[\d]{8}'
+
+	if not is_prev or not count or not date:
+		return None
+
+	if not is_prev.lower()=='true':
+		return None
+	if not re.match(date_pattern, date):
+		return None
+	count = int(count)
+
+	id = int(id)
+	year = int(date[:4])
+	mon = int(date[4:6])
+	day = int(date[6:8])
+
+	result = []
+	cursor = conn.cursor()
+	query = (
+		"select date,open,close,high,low,amount,volume from Day where id=%06d and date<'%04d-%02d-%02d' order by date desc limit %d" % (id, year, mon, day, count) )
+	cursor.execute(query)
+	for item in cursor:
+		result.append(format_day_row(item))
+	cursor.close()
+
+	return flask.jsonify(result),200
+
+# 查询指定时间点后的行情
+def query_next_day_info(id):
+	conn = flask.g.stock_db
+	is_next = flask.request.args.get('next')
+	count = flask.request.args.get('count')
+	date = flask.request.args.get('date')
+	date_pattern = '[\d]{8}'
+
+	if not is_next or not count or not date:
+		return None
+
+	if not is_next.lower()=='true':
+		return None
+	if not re.match(date_pattern, date):
+		return None
+	count = int(count)
+
+	id = int(id)
+	year = int(date[:4])
+	mon = int(date[4:6])
+	day = int(date[6:8])
+
+	result = []
+	cursor = conn.cursor()
+	query = (
+		"select date,open,close,high,low,amount,volume from Day where id=%06d and date>'%04d-%02d-%02d' order by date asc limit %d" % (id, year, mon, day, count) )
+	cursor.execute(query)
+	for item in cursor:
+		result.append(format_day_row(item))
+	cursor.close()
+
+	return flask.jsonify(result),200
+
+@stock_api.route('/day/<regex("\d{6}"):id>/')
+def day(id):
+	if not hasattr(flask.g, 'stock_db'):
+		return format_error_msg(500, 'Can not connec to db server')
+	conn = flask.g.stock_db
+	
+	tbl = [
+		query_range_day_info, # ?start=yyyymmdd&end=yyyymmdd
+		query_prev_day_info, # ?prev=true&date=yyyymmdd&count=xx
+		query_next_day_info # ?next=true&date=yyyymmdd&count=xx
+	]
+	for i in range(len(tbl)):
+		ret = tbl[i](id)
+		if ret!=None:
+			return ret
+	return format_error_msg(404, 'Invalid request args')
 
