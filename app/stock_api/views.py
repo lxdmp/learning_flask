@@ -111,7 +111,7 @@ def query_prev_day_info(id):
 		"select date,open,close,high,low,amount,volume from Day where id=%06d and date<'%04d-%02d-%02d' order by date desc limit %d" % (id, year, mon, day, count) )
 	cursor.execute(query)
 	for item in cursor:
-		result.append(format_day_row(item))
+		result.insert(0, format_day_row(item))
 	cursor.close()
 
 	return flask.jsonify(result),200
