@@ -1,28 +1,28 @@
-{# {% extends "base.html" %} #}
+/*
+ * 容器基于d3库提供绘制的场景,并分发各事件;
+ * 各接口实现响应事件,负责数据的获取、缓存,更新绘制.
+ */
 
-{% block page_content %}
-<input type="button" id="auto_ref"/>
-{% endblock %}
+/*
+ * 创建场景
+ *
+ * scene_id : 场景绑定的标签
+ */
+function create_scene(scene_id)
 
-{% block scripts %}
-{# {{ super() }} #}
-<script src="{{ url_for('static', filename='vendor/d3.v3.min.js') }}"></script>
-<script src="{{ url_for('static', filename='stock.js') }}"></script>
-<script>
-$(document).ready(function() {
-	/*
-	// 初始化图表
-	function init_chart()
-	{
-		var auto_ref = true;
-		var svg_width = 900;
-		var svg_height = 480;
-		var margin = {
-			"top" : 20, 
-			"bottom" : 20, 
-			"left" : 50, 
-			"right" : 20
-		};
+	
+
+// 初始化图表
+function init_chart()
+{
+	var svg_width = 900;
+	var svg_height = 480;
+	var margin = {
+		"top" : 20, 
+		"bottom" : 20, 
+		"left" : 50, 
+		"right" : 20
+	};
 		var buf_size = Math.round((svg_width-margin.left-margin.right)/10);
 		var buf = new Array(buf_size);
 		for(var i=0; i<buf.length; ++i)
@@ -298,8 +298,3 @@ $(document).ready(function() {
 			else
 				d3.select(this).attr("value", "恢复");
 		});
-	*/
-});
-</script>
-{% endblock %}
-
