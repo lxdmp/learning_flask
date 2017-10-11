@@ -1,6 +1,10 @@
 /*
  * 容器基于d3库提供绘制的场景,并分发各事件;
  * 各接口实现响应事件,负责数据的获取、缓存,更新绘制.
+ *
+ * 场景分发如下事件:
+ * - 重绘;
+ * - 
  */
 
 /*
@@ -9,8 +13,13 @@
  * scene_id : 场景绑定的标签
  */
 function create_scene(scene_id)
+{
+	_num_max = 50;
+	_num_min = 25;
+	_num = Math.round((_num_max+_num_min)/2)
+}
 
-	
+create_scene("123");
 
 // 初始化图表
 function init_chart()
